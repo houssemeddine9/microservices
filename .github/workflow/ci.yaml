@@ -1,0 +1,46 @@
+name: Build Microservices
+
+on:
+  push:
+    branches:
+      - build
+      - main 
+  pull_request: 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service: 
+          - frontend
+          - todos-api    
+          - users-api
+          - log-message-processor
+          - auth-api
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+              
+            
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: ${{ matrix.service }}  
+          push: true
+          tags: nabil2222/${{ matrix.service }}:latest
+        
+          
+  
